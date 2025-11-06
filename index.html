@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ed-Connect Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; }
+        .nav-link { transition: all 0.2s; cursor: pointer; border-bottom: 3px solid transparent; }
+        .nav-link.active { border-bottom: 3px solid #EE9B00; color: #EE9B00; }
+        .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); padding: 1.5rem; }
+        .sos-button { transition: all 0.3s ease; box-shadow: 0 10px 15px -3px rgba(174, 32, 18, 0.5); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } 100% { transform: scale(1); opacity: 1; } }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #0A9396; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .login-card { background-color: white; border-radius: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .rotate-180 { transform: rotate(180deg); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div id="login-view" class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+        <div class="login-card max-w-md w-full p-8 md:p-10 text-center">
+            <div class="text-5xl font-black text-[#005F73] mb-2">Ed-Connect</div>
+            <p class="text-lg text-gray-600 mb-8">School-to-College Transition Platform</p>
+            <form onsubmit="event.preventDefault(); login();" class="space-y-6">
+                <div><input type="text" id="username" placeholder="Student ID (e.g., E1234)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#0A9396]" value="E1234"></div>
+                <div><input type="password" id="password" placeholder="Password" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#0A9396]" value="password"></div>
+                <button type="submit" class="w-full bg-[#0A9396] hover:bg-[#005F73] text-white font-bold py-3 rounded-lg transition duration-300 shadow-md">Secure Login</button>
+            </form>
+            <p class="text-xs text-gray-400 mt-6">Use any username/password to access the prototype.</p>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden max-w-7xl mx-auto p-4 md:p-8">
+
+        <header class="mb-8 flex justify-between items-center">
+            <div><h1 class="text-3xl font-bold text-[#005F73]">Ed-Connect: Transition Hub</h1><p class="text-gray-500">Your roadmap from school performance to college readiness.</p></div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center text-sm font-medium p-1 px-2 bg-gray-100 rounded-lg border">
+                    <span id="connection-dot" class="w-3 h-3 rounded-full mr-2 bg-green-500 transition-colors duration-300"></span>
+                    <span id="connection-text" class="text-green-700">Online</span>
+                    <button onclick="toggleOnlineStatus()" class="ml-3 text-xs p-0.5 px-2 bg-gray-300 rounded-md hover:bg-gray-400 text-gray-800 font-semibold">Toggle</button>
+                </div>
+                <button onclick="logout()" class="text-sm text-red-500 hover:text-red-700 font-semibold transition duration-300">Log Out</button>
+            </div>
+        </header>
+
+        <nav class="flex space-x-6 border-b border-gray-200 mb-8">
+            <div id="nav-dashboard" class="nav-link px-4 py-2 text-lg font-semibold text-[#005F73] active" onclick="showView('dashboard')">Dashboard</div>
+            <div id="nav-guidance" class="nav-link px-4 py-2 text-lg font-semibold text-[#005F73]" onclick="showView('guidance')">Guidance & Resources</div>
+            <div id="nav-sos" class="nav-link px-4 py-2 text-lg font-semibold text-[#005F73]" onclick="showView('sos')">Safety (SOS)</div>
+        </nav>
+
+        <main id="app-content">
+            
+            <section id="dashboard" class="view">
+                <h2 class="text-2xl font-bold text-[#005F73] mb-6">School Performance & Readiness</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card border-l-4 border-[#0A9396]">
+                        <p class="text-sm font-medium text-gray-500">Aggregate High School GPA</p>
+                        <p id="dashboard-cgpa" class="text-4xl font-black text-[#0A9396] mt-1">--</p>
+                    </div>
+                    <div class="card border-l-4 border-[#EE9B00]">
+                        <p class="text-sm font-medium text-gray-500">College Readiness Score</p>
+                        <p id="dashboard-credits" class="text-4xl font-black text-[#EE9B00] mt-1">--</p>
+                    </div>
+                    <div class="card border-l-4 border-[#AE2012]">
+                        <p class="text-sm font-medium text-gray-500">Guardian Contact Status</p>
+                        <p id="dashboard-safety" class="text-4xl font-black text-[#AE2012] mt-1">Verified</p>
+                    </div>
+                </div>
+
+                <div class="card mt-6">
+                    <h3 class="text-xl font-semibold text-[#005F73] mb-4">Student Profile & Academic History</h3>
+                    <div class="flex items-center space-x-6 mb-6 pb-4 border-b">
+                        <img id="student-photo" class="w-24 h-24 rounded-full object-cover border-4 border-[#0A9396]" alt="Student Photo">
+                        <div>
+                            <h3 class="text-3xl font-bold text-[#005F73]" id="profile-name"></h3>
+                            <p class="text-lg font-semibold text-gray-600" id="profile-status"></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 text-sm mb-6 border-b pb-4" id="student-profile-details"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200"><span class="font-bold text-gray-600">Current Situation</span><span id="current-status-text" class="font-semibold text-lg text-yellow-700 block"></span></div>
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200"><span class="font-bold text-gray-600">Post-Secondary Education</span><span id="college-degree-status" class="font-semibold text-lg text-gray-700 block"></span></div>
+                    </div>
+                    <div class="mt-6"><h4 class="font-bold text-gray-500 mb-3">School History (<span id="school-count"></span> Schools Attended)</h4><div id="dashboard-school-history" class="space-y-3"></div></div>
+                    <div class="mt-6"><h4 class="font-bold text-gray-500 mb-3">Sports Achievements</h4><div id="dashboard-sports-achievements" class="space-y-3"></div></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <div class="card">
+                        <h3 class="text-xl font-semibold text-[#005F73] mb-4">High School Exam History (Subject Marks)</h3>
+                        <div id="dashboard-high-school-history" class="space-y-3"></div>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-xl font-semibold text-[#005F73] mb-4">College Performance History (Semester GPA)</h3>
+                        <div id="dashboard-college-history" class="space-y-3"></div>
+                    </div>
+                </div>
+                
+                <div class="card mt-6"><h3 class="text-xl font-semibold text-[#005F73] mb-4">Key Projects & Achievements</h3><ul id="dashboard-projects" class="list-disc ml-5 space-y-2"></ul></div>
+            </section>
+
+            <section id="guidance" class="view hidden">
+                <h2 class="text-2xl font-bold text-[#005F73] mb-6">College Guidance & Skill Resources</h2>
+                <div id="guidance-connection-status" class="p-4 mb-4 text-sm font-medium rounded-lg border hidden"></div>
+                <div class="card mb-6 border-l-4 border-[#EE9B00]">
+                    <h3 class="text-xl font-semibold text-[#EE9B00] mb-3">Data-Driven College Recommendation</h3>
+                    <p class="text-gray-600 mb-4">The Rule Engine uses your profile to recommend suitable college paths and application strategies.</p>
+                    <button id="generate-guidance-btn" onclick="generateGuidance()" class="bg-[#0A9396] hover:bg-[#005F73] text-white font-bold py-2 px-4 rounded-lg">Generate Latest Guidance</button>
+                    <div id="guidance-output" class="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50 min-h-[100px]"></div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-6">
+                        <div class="card border-l-4 border-[#005F73]"><h3 class="text-xl font-semibold text-[#005F73] mb-4">Upcoming College Events</h3><div id="college-events-list" class="space-y-4"></div></div>
+                        <div class="card border-l-4 border-[#AE2012]"><h3 class="text-xl font-semibold text-[#AE2012] mb-4">Latest Education News</h3><div id="education-news-list" class="space-y-4"></div></div>
+                    </div>
+                    <div class="card border-l-4 border-[#0A9396] h-full">
+                        <h3 class="text-xl font-semibold text-[#0A9396] mb-4">Skill Building: Courses & Quizzes</h3>
+                        <h4 class="font-bold text-gray-700 mb-2">Recommended Free Courses</h4>
+                        <div id="free-courses-list" class="space-y-3 mb-6 border-b pb-4"></div>
+                        <h4 class="font-bold text-gray-700 mb-2">College Readiness Quizzes</h4>
+                        <div id="quizzes-list" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sos" class="view hidden">
+                <h2 class="text-2xl font-bold text-[#005F73] mb-6">Emergency Alert System</h2>
+                <div class="card text-center p-8">
+                    <p class="text-lg text-gray-600 mb-8">Press the button below only in an emergency.</p>
+                    <button id="sos-btn" onclick="triggerSOS()" class="sos-button bg-[#AE2012] text-white font-black text-2xl py-8 px-16 rounded-full uppercase">SOS EMERGENCY</button>
+                    <div id="sos-status" class="mt-8"></div>
+                </div>
+            </section>
+
+            <div id="app-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-lg shadow-xl max-w-sm w-full p-6">
+                    <h3 id="modal-title" class="text-xl font-bold text-[#005F73] mb-3"></h3>
+                    <p id="modal-message" class="text-gray-700 mb-4"></p>
+                    <button onclick="hideModal()" class="bg-[#0A9396] hover:bg-[#005F73] text-white font-bold py-2 px-4 rounded-lg float-right">Close</button>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- MOCK DATA (Simplified from full JS file) ---
+        const studentProfile = { name: "Aisha Sharma", studentId: "E1234", gpa: 9.1, currentStatus: "Enrolled (B.Tech Computer Science, Year 2)", photoUrl: "https://placehold.co/100x100/0A9396/ffffff?text=AS", major: "B.Tech Computer Science", aadhaarNo: "XXXX XXXX 5678", phone: "+91 98765 43210", email: "aisha.sharma@college.edu.in", guardianName: "Mrs. Meena Sharma", academicHistory: [{ name: "Greenwood High School", classes: "Class 9 - Class 12", duration: "4 Years" }], collegeHistory: [{ semester: "B.Tech Year 2, Semester 1", gpa: 9.1 }], projects: ["Data-Driven College Recommendation System"], sportsParticipation: true, sportsName: "Badminton (Singles)", sportsStage: "National Level (Bronze Medalist)" };
+        const academicData = { readinessScore: "85%", history: [{ semester: "Grade 12 Pre-Board", gpa: 9.3, details: [{ subject: "Physics", mark: 95, total: 100 }, { subject: "Maths", mark: 98, total: 100 }] }] };
+        const collegeResources = { events: [], courses: [], quizzes: [], educationNews: [] };
+
+        // --- CORE LOGIC (Functions for prototype) ---
+        let isOnline = true;
+        const CACHE_KEY = 'edConnect_v1_cache';
+        function saveDataToCache(data) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch (e) {} }
+        function loadDataFromCache() { try { return JSON.parse(localStorage.getItem(CACHE_KEY)); } catch (e) { return null; } }
+        function showModal(t, m) { document.getElementById('modal-title').textContent = t; document.getElementById('modal-message').innerHTML = m; document.getElementById('app-modal').classList.remove('hidden'); document.getElementById('app-modal').classList.add('flex'); }
+        function hideModal() { document.getElementById('app-modal').classList.add('hidden'); document.getElementById('app-modal').classList.remove('flex'); }
+        function login() { document.getElementById('login-view').classList.add('hidden'); document.getElementById('main-app').classList.remove('hidden'); loadDataAndRender(); showView('dashboard'); saveDataToCache({ profile: studentProfile, academicData: academicData }); }
+        function logout() { document.getElementById('main-app').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); showModal("Logged Out", "You have successfully logged out."); }
+        function showView(viewId) { document.querySelectorAll('.view').forEach(v => v.classList.add('hidden')); document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); const v = document.getElementById(viewId); const n = document.getElementById(`nav-${viewId}`); if (v && n) { v.classList.remove('hidden'); n.classList.add('active'); } updateConnectionIndicator(); }
+        
+        function loadDataAndRender() {
+            const activeProfile = isOnline ? studentProfile : loadDataFromCache()?.profile || {};
+            const activeAcademicData = isOnline ? academicData : loadDataFromCache()?.academicData || { history: [] };
+            renderDashboard(activeProfile, activeAcademicData); renderGuidanceView(); updateConnectionIndicator();
+        }
+
+        function toggleOnlineStatus() { isOnline = !isOnline; loadDataAndRender(); showModal("Status Changed", isOnline ? "You are now **online**." : "You are now running in **simulated offline mode**."); }
+        function updateConnectionIndicator() {
+            const statusColor = isOnline ? 'bg-green-500' : 'bg-red-500';
+            document.getElementById('connection-dot').className = `w-3 h-3 rounded-full mr-2 ${statusColor} transition-colors duration-300`;
+            document.getElementById('connection-text').textContent = isOnline ? 'Online' : 'Offline (Cached)';
+            const btn = document.getElementById('generate-guidance-btn'); if (btn) { btn.disabled = !isOnline; btn.classList.toggle('opacity-50', !isOnline); btn.classList.toggle('cursor-not-allowed', !isOnline); }
+        }
+        
+        function calculateReadinessScore(data) { const grades = data.history.flatMap(e => e.details.map(d => d.mark)); if (grades.length === 0) return 0; grades.sort((a, b) => b - a); const top = grades.slice(0, Math.min(grades.length, 3)); return top.reduce((s, m) => s + m, 0) / top.length; }
+
+        function generateGuidance() {
+            if (!isOnline) { showModal("Feature Unavailable", "Cannot generate personalized guidance while in **offline mode**."); return; }
+            const outputDiv = document.getElementById('guidance-output'); const button = document.getElementById('generate-guidance-btn');
+            outputDiv.innerHTML = '<div class="flex flex-col items-center justify-center space-y-2 text-gray-500 p-4"><div class="loader"></div><span>Applying Rule Engine Logic...</span></div>';
+            button.disabled = true; button.classList.add('opacity-50');
+            const score = calculateReadinessScore(academicData);
+            let text = score >= 90 ? `Score **${score.toFixed(1)}%**: Focus on **Scholarships** and advanced courses.` : (score >= 80 ? `Score **${score.toFixed(1)}%**: Prioritize **Physics and Advanced Mathematics** for competitiveness.` : `Score **${score.toFixed(1)}%**: Reinforce foundational subjects immediately, starting with College Math.`);
+            setTimeout(() => { outputDiv.innerHTML = `<h4 class="font-bold text-gray-700 mb-2">Recommendation:</h4><p class="text-gray-700 leading-relaxed">${text}</p>`; button.disabled = false; button.classList.remove('opacity-50'); }, 1500);
+        }
+        
+        function triggerSOS() {
+            const btn = document.getElementById('sos-btn'); btn.disabled = true; btn.classList.add('opacity-50', 'bg-gray-400'); btn.classList.remove('sos-button', 'bg-[#AE2012]'); btn.textContent = 'Sending Alert...';
+            setTimeout(() => { showModal("SOS Alert Dispatched", "Emergency signal sent successfully! Location shared with **Guardian** and **Security Team**."); btn.disabled = false; btn.classList.remove('opacity-50', 'bg-gray-400'); btn.classList.add('sos-button', 'bg-[#AE2012]'); btn.textContent = 'SOS EMERGENCY'; }, 3000); 
+        }
+
+        // Simplified render functions
+        function renderDashboard(p, a) {
+            document.getElementById('dashboard-cgpa').textContent = p.gpa ? p.gpa.toFixed(2) : '--';
+            document.getElementById('dashboard-credits').textContent = a.readinessScore || '--';
+            document.getElementById('profile-name').textContent = p.name || 'Student Name';
+            document.getElementById('profile-status').textContent = p.currentStatus || 'Status Unavailable';
+            // Details, history, etc. rendering logic here... (Simplified for preview)
+            const detailsHtml = [{ label: 'Guardian', value: p.guardianName }, { label: 'Phone', value: p.phone }, { label: 'Email', value: p.email }].map(i => `<div class="text-xs"><span class="font-bold text-gray-500">${i.label}:</span><span class="text-gray-800 font-medium block">${i.value}</span></div>`).join('');
+            document.getElementById('student-profile-details').innerHTML = detailsHtml;
+        }
+
+        function renderGuidanceView() { /* Content populated by mock data */ }
+        function toggleMarks(id) { document.getElementById(id).classList.toggle('hidden'); document.getElementById(id + '-icon').classList.toggle('rotate-180'); }
+
+        document.addEventListener('DOMContentLoaded', () => { updateConnectionIndicator(); });
+    </script>
+</body>
+</html>

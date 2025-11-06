@@ -1,0 +1,75 @@
+/* Custom CSS for Ed-Connect Prototype */
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #F8F9FA; /* Light gray background */
+}
+
+/* Navigation Links */
+.nav-link {
+    transition: all 0.2s;
+    cursor: pointer;
+    border-bottom: 3px solid transparent; /* Default transparent border */
+}
+.nav-link.active {
+    border-bottom: 3px solid #EE9B00; /* Active orange border */
+    color: #EE9B00; /* Active text color */
+}
+
+/* Card Styling */
+.card {
+    background-color: white;
+    border-radius: 0.75rem; /* Rounded corners */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+    padding: 1.5rem;
+}
+
+/* SOS Button Animation */
+.sos-button {
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(174, 32, 18, 0.5); /* Red shadow */
+    animation: pulse 1.5s infinite; /* Pulsating animation */
+}
+.sos-button:hover {
+    box-shadow: 0 20px 25px -5px rgba(174, 32, 18, 0.7); /* Stronger red shadow on hover */
+}
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Loading Spinner */
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #0A9396; /* Blue spinner */
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Login Card Specifics */
+.login-card {
+    background-color: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Utility Class for Rotation (for accordion icon) */
+.rotate-180 {
+    transform: rotate(180deg);
+}
